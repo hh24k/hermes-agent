@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes Agent — Nous Research</title>
+
+    <!-- Fontshare: Clash Display + Satoshi (Neon Cyber preset) -->
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@400,500,700&display=swap">
+    <!-- JetBrains Mono for code snippets -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — NEON CYBER THEME
+           Inspired by deep-space terminal aesthetics
+           =========================================== */
+        :root {
+            --bg-primary:    #050a15;
+            --bg-secondary:  #0a1628;
+            --bg-card:       #0d1f3c;
+            --bg-card-hover: #112444;
+            --cyan:          #00e5ff;
+            --cyan-dim:      rgba(0, 229, 255, 0.15);
+            --cyan-glow:     rgba(0, 229, 255, 0.4);
+            --magenta:       #ff2d78;
+            --magenta-dim:   rgba(255, 45, 120, 0.15);
+            --gold:          #ffd166;
+            --text-primary:  #e8f4f8;
+            --text-secondary:#6b9ab0;
+            --text-muted:    #3d6070;
+            --border:        rgba(0, 229, 255, 0.12);
+            --border-bright: rgba(0, 229, 255, 0.35);
+
+            --font-display: 'Clash Display', sans-serif;
+            --font-body:    'Satoshi', sans-serif;
+            --font-mono:    'JetBrains Mono', monospace;
+
+            --title-size:    clamp(2rem, 6vw, 5rem);
+            --h2-size:       clamp(1.4rem, 3.5vw, 2.8rem);
+            --h3-size:       clamp(1rem, 2vw, 1.5rem);
+            --body-size:     clamp(0.75rem, 1.3vw, 1rem);
+            --small-size:    clamp(0.65rem, 1vw, 0.82rem);
+            --mono-size:     clamp(0.65rem, 1.1vw, 0.85rem);
+
+            --slide-padding: clamp(1.5rem, 4vw, 4.5rem);
+            --content-gap:   clamp(0.8rem, 2vw, 2rem);
+            --element-gap:   clamp(0.3rem, 0.8vw, 0.75rem);
+
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ===========================================
+           VIEWPORT BASE (mandatory — full contents)
+           =========================================== */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw; height: 100vh; height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex; flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; max-height: 100%; overflow: hidden;
+            padding: var(--slide-padding);
+        }
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size); line-height: 1.4;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        img, .image-container {
+            max-width: 100%; max-height: min(50vh, 400px); object-fit: contain;
+        }
+
+        @media (max-height: 700px) {
+            :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); }
+        }
+        @media (max-height: 600px) {
+            :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           BASE RESET + GLOBAL STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed; top: 0; left: 0;
+            height: 2px; width: 0%;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
+            z-index: 9999;
+            transition: width 0.3s var(--ease-expo);
+            box-shadow: 0 0 8px var(--cyan-glow);
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed; right: clamp(0.75rem, 2vw, 1.5rem); top: 50%;
+            transform: translateY(-50%);
+            display: flex; flex-direction: column;
+            gap: clamp(6px, 1vh, 10px); z-index: 1000;
+        }
+        .nav-dot {
+            width: clamp(5px, 0.7vw, 8px);
+            height: clamp(5px, 0.7vw, 8px);
+            border-radius: 50%;
+            background: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-expo);
+            border: 1px solid transparent;
+        }
+        .nav-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 6px var(--cyan-glow);
+            border-color: var(--cyan);
+        }
+        .nav-dot:hover { background: var(--text-secondary); transform: scale(1.3); }
+
+        /* ===========================================
+           SLIDE NUMBER
+           =========================================== */
+        .slide-num {
+            position: absolute; bottom: clamp(0.75rem, 2vw, 1.5rem);
+            right: clamp(1rem, 3vw, 2.5rem);
+            font-family: var(--font-mono); font-size: var(--small-size);
+            color: var(--text-muted); letter-spacing: 0.1em;
+        }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           Triggered when .visible is added by IntersectionObserver
+           =========================================== */
+        .reveal {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.65s var(--ease-expo), transform 0.65s var(--ease-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+
+        .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.65s var(--ease-expo), transform 0.65s var(--ease-expo); }
+        .slide.visible .reveal-left { opacity: 1; transform: translateX(0); }
+
+        .reveal-scale { opacity: 0; transform: scale(0.92); transition: opacity 0.65s var(--ease-expo), transform 0.65s var(--ease-expo); }
+        .slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+        /* Stagger delays for sequential child reveals */
+        .stagger > *:nth-child(1) { transition-delay: 0.05s; }
+        .stagger > *:nth-child(2) { transition-delay: 0.15s; }
+        .stagger > *:nth-child(3) { transition-delay: 0.25s; }
+        .stagger > *:nth-child(4) { transition-delay: 0.35s; }
+        .stagger > *:nth-child(5) { transition-delay: 0.45s; }
+        .stagger > *:nth-child(6) { transition-delay: 0.55s; }
+        .stagger > *:nth-child(7) { transition-delay: 0.65s; }
+
+        /* ===========================================
+           SHARED DECORATIVE ELEMENTS
+           =========================================== */
+
+        /* Subtle grid pattern for depth */
+        .grid-bg::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px);
+            background-size: clamp(30px, 5vw, 60px) clamp(30px, 5vw, 60px);
+        }
+
+        /* Ambient glow blobs */
+        .glow-blob {
+            position: absolute; border-radius: 50%;
+            filter: blur(clamp(40px, 8vw, 100px));
+            pointer-events: none; z-index: 0;
+        }
+        .blob-cyan  { background: rgba(0, 229, 255, 0.12); }
+        .blob-magenta { background: rgba(255, 45, 120, 0.1); }
+        .blob-blue  { background: rgba(30, 80, 200, 0.18); }
+
+        /* Cyan top-border accent on cards */
+        .accent-top {
+            border-top: 1px solid var(--cyan);
+            box-shadow: 0 calc(-1 * clamp(1px, 0.2vh, 2px)) clamp(6px, 1vw, 12px) var(--cyan-dim);
+        }
+
+        /* Label / badge */
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.4em;
+            font-family: var(--font-mono); font-size: var(--small-size);
+            padding: 0.2em 0.7em; border-radius: 4px;
+            border: 1px solid var(--border-bright);
+            color: var(--cyan); background: var(--cyan-dim);
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+
+        /* Inline code style */
+        code {
+            font-family: var(--font-mono); font-size: var(--mono-size);
+            color: var(--cyan); background: var(--cyan-dim);
+            padding: 0.1em 0.4em; border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        /* Section heading with cyan underline accent */
+        .section-title {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            position: relative; display: inline-block;
+            margin-bottom: var(--content-gap);
+        }
+        .section-title::after {
+            content: '';
+            position: absolute; bottom: calc(-1 * clamp(4px, 0.5vh, 8px));
+            left: 0; width: 2em; height: 2px;
+            background: linear-gradient(90deg, var(--cyan), transparent);
+        }
+
+        /* ============================================
+           SLIDE 1 — TITLE
+           ============================================ */
+        #slide-1 {
+            background: var(--bg-primary);
+            justify-content: center; align-items: center;
+        }
+        .title-slide-inner {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            align-items: flex-start;
+            max-width: min(90vw, 900px);
+            gap: var(--element-gap);
+            padding: var(--slide-padding);
+        }
+        .title-eyebrow {
+            font-family: var(--font-mono); font-size: var(--small-size);
+            color: var(--cyan); letter-spacing: 0.18em; text-transform: uppercase;
+            opacity: 0.85;
+        }
+        .title-main {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: var(--title-size); line-height: 1.0;
+            background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 60%, var(--magenta) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .title-tagline {
+            font-family: var(--font-body); font-size: var(--h3-size);
+            color: var(--text-secondary); margin-top: clamp(0.3rem, 1vh, 0.8rem);
+            font-weight: 400; letter-spacing: 0.02em;
+        }
+        .title-tagline strong { color: var(--cyan); font-weight: 600; }
+
+        .title-meta {
+            display: flex; gap: 1rem; margin-top: clamp(0.6rem, 2vh, 1.5rem);
+            flex-wrap: wrap;
+        }
+
+        /* Canvas particle background */
+        #particles-canvas {
+            position: absolute; inset: 0; z-index: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* ============================================
+           SLIDE 2 — WHAT IS HERMES
+           ============================================ */
+        #slide-2 { background: var(--bg-primary); }
+
+        .differentiators {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+            margin-top: clamp(0.5rem, 1.5vh, 1.2rem);
+        }
+        .diff-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.7rem, 1.4vw, 1.2rem);
+            transition: border-color 0.3s, transform 0.3s var(--ease-expo);
+        }
+        .diff-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+        .diff-icon {
+            font-size: clamp(1rem, 2vw, 1.5rem); margin-bottom: 0.3em; display: block;
+        }
+        .diff-label {
+            font-family: var(--font-display); font-size: var(--small-size);
+            color: var(--cyan); font-weight: 600; letter-spacing: 0.06em;
+            text-transform: uppercase; margin-bottom: 0.2em;
+        }
+        .diff-text {
+            font-size: var(--small-size); color: var(--text-secondary); line-height: 1.4;
+        }
+
+        @media (max-width: 700px) { .differentiators { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 420px) { .differentiators { grid-template-columns: 1fr; } }
+
+        /* ============================================
+           SLIDE 3 — ARCHITECTURE
+           ============================================ */
+        #slide-3 { background: var(--bg-primary); }
+
+        .arch-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            align-items: start;
+        }
+        @media (max-width: 750px) { .arch-layout { grid-template-columns: 1fr; } }
+
+        .arch-pipeline {
+            display: flex; flex-direction: column;
+            gap: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+        .pipeline-step {
+            display: flex; align-items: center; gap: 0.7em;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.4rem, 1vh, 0.7rem) clamp(0.6rem, 1.2vw, 1rem);
+            font-size: var(--body-size);
+            transition: border-color 0.25s;
+            position: relative;
+        }
+        .pipeline-step:hover { border-color: var(--cyan); }
+        .pipeline-step .step-icon { font-size: 1.1em; flex-shrink: 0; }
+        .pipeline-step .step-label { font-family: var(--font-body); color: var(--text-primary); font-weight: 500; }
+        .pipeline-step .step-file { font-family: var(--font-mono); font-size: var(--small-size); color: var(--cyan); opacity: 0.8; margin-left: auto; white-space: nowrap; }
+        .pipeline-arrow {
+            width: 2px; height: clamp(8px, 1.2vh, 16px);
+            background: linear-gradient(to bottom, var(--cyan), transparent);
+            margin-left: clamp(1rem, 2vw, 1.8rem);
+        }
+
+        .arch-key-files { display: flex; flex-direction: column; gap: clamp(0.4rem, 0.8vh, 0.7rem); }
+        .key-file-item {
+            background: var(--bg-card);
+            border-left: 2px solid var(--cyan);
+            padding: clamp(0.4rem, 0.8vh, 0.7rem) clamp(0.6rem, 1vw, 1rem);
+            border-radius: 0 6px 6px 0;
+        }
+        .key-file-name { font-family: var(--font-mono); font-size: var(--mono-size); color: var(--cyan); margin-bottom: 0.15em; }
+        .key-file-desc { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.3; }
+
+        /* ============================================
+           SLIDE 4 — COMPONENTS MAP
+           ============================================ */
+        #slide-4 { background: var(--bg-primary); }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: clamp(0.5rem, 1vw, 0.9rem);
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        @media (max-width: 900px) { .components-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 500px) { .components-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .comp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.6rem, 1.2vw, 1rem);
+            display: flex; flex-direction: column; gap: 0.4em;
+            transition: border-color 0.3s, transform 0.3s var(--ease-expo), box-shadow 0.3s;
+        }
+        .comp-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 229, 255, 0.08);
+        }
+        .comp-num {
+            font-family: var(--font-mono); font-size: var(--small-size);
+            color: var(--magenta); opacity: 0.8; letter-spacing: 0.1em;
+        }
+        .comp-title {
+            font-family: var(--font-display); font-weight: 600;
+            font-size: var(--small-size); color: var(--cyan);
+            letter-spacing: 0.04em; line-height: 1.2;
+        }
+        .comp-files {
+            list-style: none; display: flex; flex-direction: column;
+            gap: 0.15em; margin-top: 0.2em;
+        }
+        .comp-files li {
+            font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.88);
+            color: var(--text-secondary); line-height: 1.3;
+        }
+        .comp-files li::before { content: '› '; color: var(--text-muted); }
+
+        /* ============================================
+           SLIDE 5 — TOOL ECOSYSTEM
+           ============================================ */
+        #slide-5 { background: var(--bg-primary); }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+            margin-top: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        @media (max-width: 850px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 500px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 0.9rem) clamp(0.5rem, 0.9vw, 0.8rem);
+            display: flex; flex-direction: column; gap: 0.25em;
+            transition: border-color 0.25s, background 0.25s;
+        }
+        .tool-card:hover { border-color: var(--border-bright); background: var(--bg-card-hover); }
+        .tool-icon { font-size: clamp(1rem, 1.8vw, 1.4rem); line-height: 1; }
+        .tool-name {
+            font-family: var(--font-display); font-size: var(--small-size);
+            color: var(--text-primary); font-weight: 600;
+        }
+        .tool-detail {
+            font-size: calc(var(--small-size) * 0.9); color: var(--text-secondary); line-height: 1.3;
+        }
+        .tool-backends {
+            font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.82);
+            color: var(--cyan); opacity: 0.75; margin-top: 0.15em;
+        }
+
+        /* ============================================
+           SLIDE 6 — GATEWAY / PLATFORMS
+           ============================================ */
+        #slide-6 { background: var(--bg-primary); }
+
+        .gateway-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: clamp(1.5rem, 3vw, 3rem);
+            align-items: center;
+        }
+        @media (max-width: 700px) { .gateway-layout { grid-template-columns: 1fr; gap: 1rem; } }
+
+        .gateway-hub {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .hub-circle {
+            width: clamp(80px, 12vw, 120px); height: clamp(80px, 12vw, 120px);
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            box-shadow: 0 0 clamp(10px, 2vw, 25px) var(--cyan-glow), inset 0 0 clamp(8px, 1.5vw, 20px) var(--cyan-dim);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg-card);
+            animation: pulse-hub 3s ease-in-out infinite;
+        }
+        @keyframes pulse-hub {
+            0%, 100% { box-shadow: 0 0 15px var(--cyan-glow), inset 0 0 15px var(--cyan-dim); }
+            50% { box-shadow: 0 0 30px var(--cyan-glow), inset 0 0 25px rgba(0,229,255,0.2); }
+        }
+        .hub-label { font-family: var(--font-mono); font-size: var(--small-size); color: var(--cyan); text-align: center; font-size: calc(var(--small-size) * 0.9); }
+        .hub-icon { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        @media (max-width: 700px) { .platforms-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .platform-pill {
+            display: flex; align-items: center; gap: 0.5em;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.5rem, 0.8vw, 0.7rem);
+            font-size: var(--small-size); color: var(--text-secondary);
+            transition: border-color 0.25s, color 0.25s;
+            cursor: default;
+        }
+        .platform-pill:hover { border-color: var(--border-bright); color: var(--text-primary); }
+        .platform-pill .p-icon { font-size: 1.1em; flex-shrink: 0; }
+
+        /* ============================================
+           SLIDE 7 — SKILLS SYSTEM
+           ============================================ */
+        #slide-7 { background: var(--bg-primary); }
+
+        .skills-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2.5rem);
+            align-items: start;
+        }
+        @media (max-width: 700px) { .skills-layout { grid-template-columns: 1fr; } }
+
+        .skill-loop {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: clamp(0.8rem, 1.5vw, 1.4rem);
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .loop-step {
+            display: flex; align-items: flex-start; gap: 0.6em;
+            font-size: var(--body-size); color: var(--text-secondary);
+        }
+        .loop-step .l-icon { font-size: 1em; flex-shrink: 0; margin-top: 0.1em; }
+        .loop-step strong { color: var(--text-primary); }
+        .loop-arrow { text-align: center; color: var(--cyan); font-size: 0.8em; opacity: 0.5; }
+
+        .skill-meta { display: flex; flex-direction: column; gap: clamp(0.5rem, 1vh, 0.9rem); }
+        .skill-format {
+            background: var(--bg-card);
+            border-left: 2px solid var(--magenta);
+            padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.6rem, 1vw, 1rem);
+            border-radius: 0 6px 6px 0;
+        }
+        .skill-format-title { font-family: var(--font-mono); font-size: var(--small-size); color: var(--magenta); margin-bottom: 0.3em; }
+        .skill-format-lines { display: flex; flex-direction: column; gap: 0.1em; }
+        .skill-format-lines span { font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.9); color: var(--text-secondary); }
+        .skill-format-lines .kw { color: var(--magenta); }
+        .skill-format-lines .val { color: var(--gold); }
+
+        .skills-cats {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.6rem, 1vw, 1rem);
+        }
+        .skills-cats-title { font-size: var(--small-size); color: var(--text-muted); margin-bottom: 0.4em; text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono); }
+        .cats-wrap {
+            display: flex; flex-wrap: wrap; gap: 0.3em;
+        }
+        .cat-tag {
+            font-size: calc(var(--small-size) * 0.88); padding: 0.15em 0.5em;
+            border-radius: 4px; border: 1px solid var(--border);
+            color: var(--text-secondary); background: rgba(255,255,255,0.02);
+            font-family: var(--font-mono);
+        }
+
+        /* ============================================
+           SLIDE 8 — HOW TO USE
+           ============================================ */
+        #slide-8 { background: var(--bg-primary); }
+
+        .usage-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            align-items: start;
+        }
+        @media (max-width: 700px) { .usage-layout { grid-template-columns: 1fr; } }
+
+        .install-block {
+            background: #0b1624;
+            border: 1px solid var(--border-bright);
+            border-radius: 8px;
+            padding: clamp(0.7rem, 1.5vw, 1.2rem);
+            margin-bottom: clamp(0.5rem, 1vh, 0.9rem);
+        }
+        .install-label {
+            font-family: var(--font-mono); font-size: var(--small-size);
+            color: var(--text-muted); margin-bottom: 0.4em; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        .install-cmd {
+            font-family: var(--font-mono); font-size: var(--mono-size);
+            color: var(--cyan); word-break: break-all;
+        }
+        .install-cmd .cmd-prefix { color: var(--text-muted); }
+
+        .cmd-list { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.55rem); }
+        .cmd-row {
+            display: flex; align-items: baseline; gap: 0.6em;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.5rem, 0.9vw, 0.8rem);
+        }
+        .cmd-name {
+            font-family: var(--font-mono); font-size: var(--mono-size);
+            color: var(--cyan); white-space: nowrap; font-weight: 500;
+        }
+        .cmd-desc { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.3; }
+
+        /* ============================================
+           SLIDE 9 — CONTRIBUTE
+           ============================================ */
+        #slide-9 { background: var(--bg-primary); }
+
+        .contrib-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            align-items: start;
+        }
+        @media (max-width: 700px) { .contrib-layout { grid-template-columns: 1fr; } }
+
+        .priority-list { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.55rem); }
+        .priority-item {
+            display: flex; align-items: center; gap: 0.7em;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.6rem, 1vw, 0.9rem);
+            font-size: var(--body-size);
+        }
+        .p-rank {
+            font-family: var(--font-mono); font-size: var(--small-size);
+            color: var(--magenta); font-weight: 700; flex-shrink: 0;
+        }
+        .p-label { color: var(--text-primary); font-weight: 500; }
+        .p-desc { font-size: var(--small-size); color: var(--text-muted); margin-left: auto; display: none; }
+
+        .contrib-right { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vh, 1rem); }
+
+        .decision-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1rem);
+        }
+        .decision-title { font-size: var(--small-size); color: var(--cyan); font-weight: 600; margin-bottom: 0.4em; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-mono); }
+        .decision-row { display: flex; gap: 0.5em; align-items: flex-start; font-size: var(--small-size); color: var(--text-secondary); margin-bottom: 0.2em; line-height: 1.4; }
+        .decision-row .d-kw { color: var(--magenta); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+
+        .dev-setup {
+            background: #0b1624;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1rem);
+        }
+        .dev-setup-title { font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-muted); margin-bottom: 0.4em; }
+        .dev-setup-lines { display: flex; flex-direction: column; gap: 0.15em; }
+        .dev-setup-lines span { font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.9); color: var(--cyan); }
+        .dev-setup-lines span.comment { color: var(--text-muted); }
+
+        /* ============================================
+           SLIDE 10 — DEPLOYMENT
+           ============================================ */
+        #slide-10 { background: var(--bg-primary); }
+
+        .deploy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1vw, 0.9rem);
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        @media (max-width: 800px) { .deploy-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .deploy-grid { grid-template-columns: 1fr; } }
+
+        .deploy-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.8rem, 1.4vw, 1.2rem);
+            display: flex; flex-direction: column; gap: 0.35em;
+            transition: border-color 0.3s, transform 0.3s var(--ease-expo);
+        }
+        .deploy-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+        .deploy-icon { font-size: clamp(1.2rem, 2vw, 1.6rem); line-height: 1; }
+        .deploy-name { font-family: var(--font-display); font-size: var(--body-size); color: var(--text-primary); font-weight: 600; }
+        .deploy-cost { font-family: var(--font-mono); font-size: var(--small-size); color: var(--gold); }
+        .deploy-desc { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.35; }
+        .deploy-cmd { font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.88); color: var(--cyan); margin-top: 0.2em; opacity: 0.8; }
+
+        /* ============================================
+           SLIDE 11 — RESEARCH
+           ============================================ */
+        #slide-11 { background: var(--bg-primary); }
+
+        .research-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2.5rem);
+            align-items: start;
+        }
+        @media (max-width: 700px) { .research-layout { grid-template-columns: 1fr; } }
+
+        .research-cards { display: flex; flex-direction: column; gap: clamp(0.4rem, 0.9vh, 0.7rem); }
+        .research-card {
+            background: var(--bg-card);
+            border-left: 2px solid var(--magenta);
+            padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.7rem, 1.2vw, 1rem);
+            border-radius: 0 8px 8px 0;
+        }
+        .research-card-title { font-family: var(--font-display); font-size: var(--body-size); color: var(--text-primary); font-weight: 600; margin-bottom: 0.2em; }
+        .research-card-file { font-family: var(--font-mono); font-size: calc(var(--small-size) * 0.9); color: var(--magenta); opacity: 0.8; margin-bottom: 0.2em; }
+        .research-card-desc { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.35; }
+
+        .research-diagram {
+            display: flex; flex-direction: column; align-items: center;
+            gap: clamp(0.4rem, 0.8vh, 0.6rem);
+        }
+        .rd-node {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.4rem, 0.9vh, 0.7rem) clamp(0.8rem, 1.5vw, 1.4rem);
+            font-size: var(--body-size); color: var(--text-primary);
+            text-align: center; font-weight: 500; width: 100%;
+        }
+        .rd-node.accent { border-color: var(--magenta); color: var(--magenta); }
+        .rd-node.cyan   { border-color: var(--cyan); color: var(--cyan); }
+        .rd-arrow { color: var(--text-muted); font-size: 0.9em; }
+
+        /* ============================================
+           SLIDE 12 — CTA / RESOURCES
+           ============================================ */
+        #slide-12 {
+            background: var(--bg-primary);
+            justify-content: center; align-items: center;
+        }
+        .cta-inner {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            align-items: center; text-align: center;
+            gap: var(--content-gap);
+            max-width: min(90vw, 780px);
+            padding: var(--slide-padding);
+        }
+        .cta-headline {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: var(--h2-size);
+            background: linear-gradient(135deg, var(--cyan) 0%, #ffffff 50%, var(--magenta) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .cta-sub {
+            font-size: var(--body-size); color: var(--text-secondary);
+            line-height: 1.5; max-width: 60ch;
+        }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.5rem, 1vw, 0.9rem);
+            width: 100%; margin-top: clamp(0.3rem, 1vh, 0.8rem);
+        }
+        @media (max-width: 500px) { .resource-grid { grid-template-columns: 1fr; } }
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1rem);
+            text-decoration: none; color: inherit;
+            transition: border-color 0.3s, transform 0.3s var(--ease-expo);
+            display: flex; align-items: center; gap: 0.7em;
+        }
+        .resource-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+        .resource-icon { font-size: clamp(1.2rem, 2vw, 1.5rem); flex-shrink: 0; }
+        .resource-info { text-align: left; }
+        .resource-label { font-family: var(--font-mono); font-size: var(--small-size); color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.15em; }
+        .resource-url { font-size: var(--small-size); color: var(--text-secondary); }
+
+        .cta-closing {
+            font-family: var(--font-display); font-size: var(--h3-size);
+            color: var(--text-primary); opacity: 0.7; letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress bar: fills as user scrolls through slides -->
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemax="100"></div>
+
+<!-- Navigation dots: generated by JS -->
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+<!-- ================================================
+     SLIDE 1 — TITLE
+     ================================================ -->
+<section class="slide grid-bg" id="slide-1" aria-label="Title slide">
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <!-- Ambient glow blobs -->
+    <div class="glow-blob blob-cyan" style="width:clamp(200px,40vw,500px);height:clamp(200px,40vw,500px);top:-10%;left:-5%;"></div>
+    <div class="glow-blob blob-magenta" style="width:clamp(150px,30vw,380px);height:clamp(150px,30vw,380px);bottom:5%;right:5%;"></div>
+
+    <div class="title-slide-inner">
+        <span class="title-eyebrow reveal">Nous Research</span>
+        <h1 class="title-main reveal">Hermes Agent</h1>
+        <p class="title-tagline reveal"><strong>One Agent.</strong> Every Platform. <strong>Always Learning.</strong></p>
+        <div class="title-meta reveal stagger">
+            <span class="badge">Self-Improving</span>
+            <span class="badge">200+ Models</span>
+            <span class="badge">25+ Platforms</span>
+            <span class="badge">Open Source</span>
+        </div>
+    </div>
+
+    <div class="slide-num">01 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 2 — WHAT IS HERMES
+     ================================================ -->
+<section class="slide grid-bg" id="slide-2" aria-label="What is Hermes">
+    <div class="glow-blob blob-blue" style="width:clamp(200px,35vw,450px);height:clamp(200px,35vw,450px);top:10%;right:-5%;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal">
+            <span class="badge" style="margin-bottom:clamp(0.4rem,1vh,0.8rem);display:inline-flex;">What is Hermes?</span>
+        </div>
+        <h2 class="section-title reveal">A self-improving AI agent</h2>
+        <p class="reveal" style="font-size:var(--body-size);color:var(--text-secondary);max-width:65ch;line-height:1.55;margin-bottom:clamp(0.4rem,1.2vh,1rem);">
+            Combines <strong style="color:var(--text-primary)">tool-calling</strong>, <strong style="color:var(--text-primary)">persistent learning</strong>, and <strong style="color:var(--text-primary)">multi-platform messaging</strong> into a single unified system — extensible, portable, and privacy-respecting.
+        </p>
+
+        <div class="differentiators stagger">
+            <div class="diff-card reveal">
+                <span class="diff-icon">🔄</span>
+                <span class="diff-label">Self-Improving Loop</span>
+                <p class="diff-text">Creates and refines skills autonomously from experience</p>
+            </div>
+            <div class="diff-card reveal">
+                <span class="diff-icon">🤖</span>
+                <span class="diff-label">Model-Agnostic</span>
+                <p class="diff-text">200+ models — Anthropic, OpenAI, Google, OpenRouter, Ollama, LM Studio</p>
+            </div>
+            <div class="diff-card reveal">
+                <span class="diff-icon">📡</span>
+                <span class="diff-label">25+ Platforms</span>
+                <p class="diff-text">Telegram, Discord, Slack, WhatsApp, Matrix, Signal, Email and more</p>
+            </div>
+            <div class="diff-card reveal">
+                <span class="diff-icon">🧠</span>
+                <span class="diff-label">Persistent Memory</span>
+                <p class="diff-text">FTS5 full-text search over all sessions with LLM summarization</p>
+            </div>
+            <div class="diff-card reveal">
+                <span class="diff-icon">🔧</span>
+                <span class="diff-label">Skills Hub</span>
+                <p class="diff-text">Open standard (agentskills.io) — share and discover skills</p>
+            </div>
+            <div class="diff-card reveal">
+                <span class="diff-icon">☁️</span>
+                <span class="diff-label">Serverless-Ready</span>
+                <p class="diff-text">Daytona & Modal with hibernation during idle periods</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">02 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 3 — ARCHITECTURE
+     ================================================ -->
+<section class="slide grid-bg" id="slide-3" aria-label="Architecture overview">
+    <div class="glow-blob blob-cyan" style="width:clamp(150px,25vw,300px);height:clamp(150px,25vw,300px);bottom:10%;left:20%;opacity:0.7;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Architecture</span></div>
+        <h2 class="section-title reveal">Core Agent Loop</h2>
+
+        <div class="arch-layout stagger">
+            <!-- Left: pipeline -->
+            <div class="arch-pipeline reveal">
+                <div class="pipeline-step">
+                    <span class="step-icon">💬</span>
+                    <span class="step-label">User Message</span>
+                </div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">
+                    <span class="step-icon">📝</span>
+                    <span class="step-label">Prompt Builder</span>
+                    <span class="step-file">prompt_builder.py</span>
+                </div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">
+                    <span class="step-icon">🧠</span>
+                    <span class="step-label">LLM API</span>
+                    <span class="step-file">run_agent.py</span>
+                </div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">
+                    <span class="step-icon">🔧</span>
+                    <span class="step-label">Tool Calling Loop</span>
+                    <span class="step-file">registry.py</span>
+                </div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">
+                    <span class="step-icon">🗜️</span>
+                    <span class="step-label">Context Compression</span>
+                    <span class="step-file">context_compressor.py</span>
+                </div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step accent-top">
+                    <span class="step-icon">💾</span>
+                    <span class="step-label">SQLite Persistence</span>
+                    <span class="step-file">hermes_state.py</span>
+                </div>
+            </div>
+
+            <!-- Right: key files -->
+            <div class="arch-key-files reveal">
+                <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Key Files</div>
+                <div class="key-file-item">
+                    <div class="key-file-name">run_agent.py</div>
+                    <div class="key-file-desc">Main conversation engine, AIAgent class, tool dispatch — 10.9K lines</div>
+                </div>
+                <div class="key-file-item">
+                    <div class="key-file-name">cli.py</div>
+                    <div class="key-file-desc">Terminal UI with prompt_toolkit, multiline editing, slash commands</div>
+                </div>
+                <div class="key-file-item">
+                    <div class="key-file-name">gateway/run.py</div>
+                    <div class="key-file-desc">GatewayRunner — messaging platform lifecycle and routing</div>
+                </div>
+                <div class="key-file-item">
+                    <div class="key-file-name">tools/registry.py</div>
+                    <div class="key-file-desc">Central registration and dispatch for all 50+ tools</div>
+                </div>
+                <div class="key-file-item">
+                    <div class="key-file-name">agent/prompt_builder.py</div>
+                    <div class="key-file-desc">System prompt assembly: identity, skills, context, memory blocks</div>
+                </div>
+                <div class="key-file-item" style="border-left-color:var(--magenta);">
+                    <div class="key-file-name" style="color:var(--magenta);">hermes_state.py</div>
+                    <div class="key-file-desc">SQLite + FTS5 full-text search over all conversation history</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">03 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 4 — COMPONENTS MAP
+     ================================================ -->
+<section class="slide grid-bg" id="slide-4" aria-label="Components map">
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Structure</span></div>
+        <h2 class="section-title reveal">5 Major Subsystems</h2>
+
+        <div class="components-grid stagger">
+            <div class="comp-card reveal">
+                <span class="comp-num">01</span>
+                <span class="comp-title">Core Agent</span>
+                <ul class="comp-files">
+                    <li>run_agent.py</li>
+                    <li>hermes_state.py</li>
+                    <li>context_compressor.py</li>
+                    <li>memory_manager.py</li>
+                    <li>prompt_builder.py</li>
+                </ul>
+            </div>
+            <div class="comp-card reveal">
+                <span class="comp-num">02</span>
+                <span class="comp-title">CLI Interface</span>
+                <ul class="comp-files">
+                    <li>cli.py</li>
+                    <li>hermes_cli/ (49 files)</li>
+                    <li>setup.py</li>
+                    <li>commands.py</li>
+                    <li>skin_engine.py</li>
+                </ul>
+            </div>
+            <div class="comp-card reveal">
+                <span class="comp-num">03</span>
+                <span class="comp-title">Tools System</span>
+                <ul class="comp-files">
+                    <li>tools/ (55 files)</li>
+                    <li>registry.py</li>
+                    <li>50+ tools</li>
+                    <li>6 environments</li>
+                    <li>3 browser backends</li>
+                </ul>
+            </div>
+            <div class="comp-card reveal">
+                <span class="comp-num">04</span>
+                <span class="comp-title">Gateway</span>
+                <ul class="comp-files">
+                    <li>gateway/ (19 files)</li>
+                    <li>25+ platforms</li>
+                    <li>session.py</li>
+                    <li>config.py</li>
+                    <li>builtin_hooks/</li>
+                </ul>
+            </div>
+            <div class="comp-card reveal" style="border-color:rgba(0,229,255,0.2);">
+                <span class="comp-num">05</span>
+                <span class="comp-title">Skills Engine</span>
+                <ul class="comp-files">
+                    <li>skills/ (28 categories)</li>
+                    <li>skills_tool.py</li>
+                    <li>skills_hub.py</li>
+                    <li>Self-creation</li>
+                    <li>agentskills.io</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">04 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 5 — TOOL ECOSYSTEM
+     ================================================ -->
+<section class="slide grid-bg" id="slide-5" aria-label="Tool ecosystem">
+    <div class="glow-blob blob-magenta" style="width:clamp(150px,25vw,300px);height:clamp(150px,25vw,300px);top:5%;right:10%;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Tools</span></div>
+        <h2 class="section-title reveal">50+ Tools in 10 Categories</h2>
+
+        <div class="tools-grid stagger">
+            <div class="tool-card reveal">
+                <span class="tool-icon">🌐</span>
+                <span class="tool-name">Web</span>
+                <span class="tool-detail">Search, extract, scrape</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">💻</span>
+                <span class="tool-name">Terminal</span>
+                <span class="tool-detail">Shell execution</span>
+                <span class="tool-backends">local · SSH · Docker · Modal · Daytona · Singularity</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">🖥️</span>
+                <span class="tool-name">Browser</span>
+                <span class="tool-detail">Navigate, click, vision</span>
+                <span class="tool-backends">Playwright · Browserbase · Firecrawl</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">📁</span>
+                <span class="tool-name">Files</span>
+                <span class="tool-detail">Read, write, patch, search</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">👁️</span>
+                <span class="tool-name">Vision</span>
+                <span class="tool-detail">Multimodal analysis, image generation</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">🐍</span>
+                <span class="tool-name">Code Exec</span>
+                <span class="tool-detail">Python sandbox with RPC</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">🧠</span>
+                <span class="tool-name">Memory</span>
+                <span class="tool-detail">MEMORY.md, USER.md, session search</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">⏰</span>
+                <span class="tool-name">Cron</span>
+                <span class="tool-detail">Scheduled automation, natural language</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">🤝</span>
+                <span class="tool-name">Delegation</span>
+                <span class="tool-detail">Spawn subagents, parallel tasks</span>
+            </div>
+            <div class="tool-card reveal">
+                <span class="tool-icon">🔌</span>
+                <span class="tool-name">MCP Servers</span>
+                <span class="tool-detail">Connect external MCP tools</span>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">05 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 6 — MULTI-PLATFORM GATEWAY
+     ================================================ -->
+<section class="slide grid-bg" id="slide-6" aria-label="Multi-platform gateway">
+    <div class="glow-blob blob-cyan" style="width:clamp(150px,28vw,350px);height:clamp(150px,28vw,350px);top:20%;left:30%;opacity:0.5;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Gateway</span></div>
+        <h2 class="section-title reveal">One Agent, 25+ Platforms</h2>
+
+        <div class="gateway-layout reveal">
+            <div class="gateway-hub">
+                <div class="hub-circle">
+                    <span class="hub-icon">⚡</span>
+                </div>
+                <span class="hub-label">Hermes<br>Agent</span>
+            </div>
+            <div class="platforms-grid stagger">
+                <div class="platform-pill reveal"><span class="p-icon">✈️</span> Telegram</div>
+                <div class="platform-pill reveal"><span class="p-icon">🎮</span> Discord</div>
+                <div class="platform-pill reveal"><span class="p-icon">💼</span> Slack</div>
+                <div class="platform-pill reveal"><span class="p-icon">💬</span> WhatsApp</div>
+                <div class="platform-pill reveal"><span class="p-icon">🔒</span> Signal</div>
+                <div class="platform-pill reveal"><span class="p-icon">🏠</span> Matrix</div>
+                <div class="platform-pill reveal"><span class="p-icon">📧</span> Email</div>
+                <div class="platform-pill reveal"><span class="p-icon">💻</span> WeChat</div>
+                <div class="platform-pill reveal"><span class="p-icon">🔔</span> DingTalk</div>
+                <div class="platform-pill reveal"><span class="p-icon">🪶</span> Feishu</div>
+                <div class="platform-pill reveal"><span class="p-icon">🏡</span> Home Assistant</div>
+                <div class="platform-pill reveal"><span class="p-icon">📱</span> SMS + more</div>
+            </div>
+        </div>
+
+        <p class="reveal" style="margin-top:clamp(0.5rem,1.2vh,1rem);font-size:var(--small-size);color:var(--text-muted);">
+            Single agent logic, consistent experience across all channels — configure once, deploy everywhere.
+        </p>
+    </div>
+    <div class="slide-num">06 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 7 — SKILLS SYSTEM
+     ================================================ -->
+<section class="slide grid-bg" id="slide-7" aria-label="Skills system">
+    <div class="glow-blob blob-blue" style="width:clamp(150px,28vw,360px);height:clamp(150px,28vw,360px);bottom:5%;right:-5%;opacity:0.7;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Skills Engine</span></div>
+        <h2 class="section-title reveal">Self-Improving via Skills</h2>
+
+        <div class="skills-layout stagger">
+            <!-- Left: loop -->
+            <div class="skill-loop reveal">
+                <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3em;">Improvement Loop</div>
+                <div class="loop-step"><span class="l-icon">👤</span><span>User interacts with agent</span></div>
+                <div class="loop-arrow">↓</div>
+                <div class="loop-step"><span class="l-icon">🔍</span><span>Agent detects reusable pattern</span></div>
+                <div class="loop-arrow">↓</div>
+                <div class="loop-step"><span class="l-icon">✍️</span><span><strong>Creates a Markdown skill file</strong></span></div>
+                <div class="loop-arrow">↓</div>
+                <div class="loop-step"><span class="l-icon">📥</span><span>Skill persists to <code>~/.hermes/skills/</code></span></div>
+                <div class="loop-arrow">↓</div>
+                <div class="loop-step"><span class="l-icon">📈</span><span>Agent <strong>refines skill</strong> on next use</span></div>
+                <div class="loop-arrow">↓</div>
+                <div class="loop-step"><span class="l-icon">🌐</span><span>Share on <strong>agentskills.io</strong></span></div>
+            </div>
+
+            <!-- Right: format + categories -->
+            <div class="skill-meta reveal">
+                <div class="skill-format">
+                    <div class="skill-format-title">Skill Format (Markdown + YAML)</div>
+                    <div class="skill-format-lines">
+                        <span><span class="kw">---</span></span>
+                        <span><span class="kw">name:</span> <span class="val">my-skill</span></span>
+                        <span><span class="kw">description:</span> <span class="val">Brief description</span></span>
+                        <span><span class="kw">version:</span> <span class="val">1.0.0</span></span>
+                        <span><span class="kw">platforms:</span> <span class="val">[macos, linux]</span></span>
+                        <span><span class="kw">---</span></span>
+                        <span style="margin-top:0.3em;color:var(--text-muted)"># Skill Title</span>
+                        <span style="color:var(--text-muted)">Instructions the agent follows...</span>
+                    </div>
+                </div>
+
+                <div class="skills-cats">
+                    <div class="skills-cats-title">28 Bundled Categories</div>
+                    <div class="cats-wrap">
+                        <span class="cat-tag">apple</span><span class="cat-tag">creative</span>
+                        <span class="cat-tag">data-science</span><span class="cat-tag">devops</span>
+                        <span class="cat-tag">github</span><span class="cat-tag">email</span>
+                        <span class="cat-tag">productivity</span><span class="cat-tag">research</span>
+                        <span class="cat-tag">software-dev</span><span class="cat-tag">security</span>
+                        <span class="cat-tag">finance</span><span class="cat-tag">media</span>
+                        <span class="cat-tag">+16 more</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">07 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 8 — HOW TO USE
+     ================================================ -->
+<section class="slide grid-bg" id="slide-8" aria-label="How to use">
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Usage</span></div>
+        <h2 class="section-title reveal">Getting Started</h2>
+
+        <div class="usage-layout stagger">
+            <!-- Left: install + config -->
+            <div class="reveal">
+                <div class="install-block">
+                    <div class="install-label">Install (Linux / macOS / WSL2)</div>
+                    <div class="install-cmd"><span class="cmd-prefix">$ </span>curl -fsSL .../install.sh | bash</div>
+                </div>
+                <div class="install-block" style="margin-top:0;">
+                    <div class="install-label">Then start</div>
+                    <div class="install-cmd"><span class="cmd-prefix">$ </span>hermes</div>
+                </div>
+                <div style="margin-top:clamp(0.4rem,1vh,0.8rem);font-size:var(--small-size);color:var(--text-secondary);">
+                    Config: <code>~/.hermes/config.yaml</code> — 450+ documented options
+                </div>
+            </div>
+
+            <!-- Right: commands -->
+            <div class="cmd-list reveal">
+                <div class="cmd-row"><span class="cmd-name">hermes</span><span class="cmd-desc">Start interactive TUI session</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes chat -q "…"</span><span class="cmd-desc">Non-interactive single query</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes setup</span><span class="cmd-desc">Interactive configuration wizard</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes model</span><span class="cmd-desc">Switch between 200+ models</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes gateway</span><span class="cmd-desc">Start messaging gateway (Telegram, Discord…)</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes skills</span><span class="cmd-desc">Browse and install from Skills Hub</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes cron</span><span class="cmd-desc">Manage scheduled automation tasks</span></div>
+                <div class="cmd-row"><span class="cmd-name">hermes doctor</span><span class="cmd-desc">Diagnose configuration issues</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">08 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 9 — HOW TO CONTRIBUTE
+     ================================================ -->
+<section class="slide grid-bg" id="slide-9" aria-label="How to contribute">
+    <div class="glow-blob blob-magenta" style="width:clamp(150px,25vw,300px);height:clamp(150px,25vw,300px);top:5%;left:5%;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Contribute</span></div>
+        <h2 class="section-title reveal">Contributing to Hermes</h2>
+
+        <div class="contrib-layout stagger">
+            <!-- Left: priority list -->
+            <div class="reveal">
+                <div style="font-size:var(--small-size);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;font-family:var(--font-mono);">Contribution Priorities</div>
+                <div class="priority-list">
+                    <div class="priority-item"><span class="p-rank">P1</span><span class="p-label">Bug Fixes</span></div>
+                    <div class="priority-item"><span class="p-rank">P2</span><span class="p-label">Cross-Platform Compatibility</span></div>
+                    <div class="priority-item"><span class="p-rank">P3</span><span class="p-label">Security Hardening</span></div>
+                    <div class="priority-item"><span class="p-rank">P4</span><span class="p-label">Performance &amp; Robustness</span></div>
+                    <div class="priority-item"><span class="p-rank">P5</span><span class="p-label">New Skills</span></div>
+                    <div class="priority-item"><span class="p-rank">P6</span><span class="p-label">New Tools</span></div>
+                    <div class="priority-item"><span class="p-rank">P7</span><span class="p-label">Documentation</span></div>
+                </div>
+            </div>
+
+            <!-- Right: decision box + dev setup -->
+            <div class="contrib-right reveal">
+                <div class="decision-box">
+                    <div class="decision-title">Skill vs Tool?</div>
+                    <div class="decision-row"><span class="d-kw">Skill</span>if it wraps an external CLI / API or uses existing tools</div>
+                    <div class="decision-row"><span class="d-kw">Tool</span>if it needs binary data, streaming, or precise API integration</div>
+                </div>
+
+                <div class="dev-setup">
+                    <div class="dev-setup-title"># Dev Setup</div>
+                    <div class="dev-setup-lines">
+                        <span>git clone --recurse-submodules &lt;repo&gt;</span>
+                        <span>uv venv venv --python 3.11</span>
+                        <span>uv pip install -e ".[all,dev]"</span>
+                        <span>pytest tests/ -v</span>
+                        <span class="comment"># Branch: fix/ feat/ docs/ test/</span>
+                        <span class="comment"># Commits: conventional (fix: / feat:)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">09 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 10 — DEPLOYMENT
+     ================================================ -->
+<section class="slide grid-bg" id="slide-10" aria-label="Deployment options">
+    <div class="glow-blob blob-blue" style="width:clamp(150px,28vw,350px);height:clamp(150px,28vw,350px);bottom:0;right:15%;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Deploy</span></div>
+        <h2 class="section-title reveal">Flexible Deployment</h2>
+
+        <div class="deploy-grid stagger">
+            <div class="deploy-card reveal">
+                <span class="deploy-icon">💻</span>
+                <span class="deploy-name">Laptop CLI</span>
+                <span class="deploy-cost">$0</span>
+                <span class="deploy-desc">Direct execution, daily AI assistant</span>
+                <span class="deploy-cmd">$ hermes</span>
+            </div>
+            <div class="deploy-card reveal">
+                <span class="deploy-icon">🖥️</span>
+                <span class="deploy-name">VPS + systemd</span>
+                <span class="deploy-cost">$5–20 / mo</span>
+                <span class="deploy-desc">Always-on bot, any messaging platform</span>
+                <span class="deploy-cmd">$ hermes gateway start</span>
+            </div>
+            <div class="deploy-card reveal">
+                <span class="deploy-icon">🐳</span>
+                <span class="deploy-name">Docker</span>
+                <span class="deploy-cost">Variable</span>
+                <span class="deploy-desc">Isolated, portable, reproducible</span>
+                <span class="deploy-cmd">$ docker run hermes</span>
+            </div>
+            <div class="deploy-card reveal">
+                <span class="deploy-icon">🌙</span>
+                <span class="deploy-name">Daytona</span>
+                <span class="deploy-cost">~$1–5 / mo idle</span>
+                <span class="deploy-desc">Serverless with hibernation, persistent state</span>
+                <span class="deploy-cmd">daytona create</span>
+            </div>
+            <div class="deploy-card reveal">
+                <span class="deploy-icon">⚡</span>
+                <span class="deploy-name">Modal</span>
+                <span class="deploy-cost">$0–10 / mo</span>
+                <span class="deploy-desc">Scale-to-zero, pay only when running</span>
+                <span class="deploy-cmd">modal deploy</span>
+            </div>
+            <div class="deploy-card reveal" style="border-color:rgba(0,229,255,0.2);">
+                <span class="deploy-icon">☸️</span>
+                <span class="deploy-name">Kubernetes</span>
+                <span class="deploy-cost">Enterprise</span>
+                <span class="deploy-desc">Helm charts for production scale</span>
+                <span class="deploy-cmd">helm install hermes ./helm</span>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">10 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 11 — RESEARCH INFRASTRUCTURE
+     ================================================ -->
+<section class="slide grid-bg" id="slide-11" aria-label="Research infrastructure">
+    <div class="glow-blob blob-magenta" style="width:clamp(150px,25vw,320px);height:clamp(150px,25vw,320px);top:10%;right:5%;opacity:0.6;"></div>
+
+    <div class="slide-content" style="position:relative;z-index:1;">
+        <div class="reveal"><span class="badge" style="margin-bottom:clamp(0.3rem,0.8vh,0.7rem);display:inline-flex;">Research</span></div>
+        <h2 class="section-title reveal">RL Training Infrastructure</h2>
+
+        <div class="research-layout stagger">
+            <div class="research-cards reveal">
+                <div class="research-card">
+                    <div class="research-card-title">Batch Trajectory Generation</div>
+                    <div class="research-card-file">batch_runner.py</div>
+                    <div class="research-card-desc">Generate AI trajectories at scale for reinforcement learning training datasets</div>
+                </div>
+                <div class="research-card">
+                    <div class="research-card-title">Trajectory Compression</div>
+                    <div class="research-card-file">trajectory_compressor.py</div>
+                    <div class="research-card-desc">Compress trajectories for efficient training data storage and transfer</div>
+                </div>
+                <div class="research-card">
+                    <div class="research-card-title">Atropos RL Environments</div>
+                    <div class="research-card-file">environments/ (git submodule)</div>
+                    <div class="research-card-desc">Custom RL environments to optimize tool-calling policies via tinker-atropos</div>
+                </div>
+                <div class="research-card" style="border-left-color:var(--cyan);">
+                    <div class="research-card-title">Experiment Tracking</div>
+                    <div class="research-card-file">wandb integration</div>
+                    <div class="research-card-desc">Weights &amp; Biases for ML experiment tracking and model benchmarking</div>
+                </div>
+            </div>
+
+            <div class="research-diagram reveal">
+                <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Training Pipeline</div>
+                <div class="rd-node">Agent Trajectories</div>
+                <div class="rd-arrow">↓</div>
+                <div class="rd-node">batch_runner.py</div>
+                <div class="rd-arrow">↓</div>
+                <div class="rd-node">Trajectory Compression</div>
+                <div class="rd-arrow">↓</div>
+                <div class="rd-node accent">Atropos RL Env</div>
+                <div class="rd-arrow">↓</div>
+                <div class="rd-node cyan">Optimized Policy</div>
+                <div class="rd-arrow">↓</div>
+                <div class="rd-node">Improved Hermes Model</div>
+            </div>
+        </div>
+    </div>
+    <div class="slide-num">11 / 12</div>
+</section>
+
+<!-- ================================================
+     SLIDE 12 — CTA / RESOURCES
+     ================================================ -->
+<section class="slide grid-bg" id="slide-12" aria-label="Resources and links">
+    <canvas id="particles-canvas-2" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
+    <div class="glow-blob blob-cyan"    style="width:clamp(200px,40vw,500px);height:clamp(200px,40vw,500px);top:-10%;right:-5%;"></div>
+    <div class="glow-blob blob-magenta" style="width:clamp(150px,30vw,380px);height:clamp(150px,30vw,380px);bottom:5%;left:5%;"></div>
+
+    <div class="cta-inner">
+        <span class="badge reveal">Nous Research — Open Source</span>
+        <h2 class="cta-headline reveal">Build with Nous.</h2>
+        <p class="cta-sub reveal">Extend with Skills. Deploy Anywhere.</p>
+
+        <div class="resource-grid reveal">
+            <a class="resource-card" href="#" aria-label="Documentation">
+                <span class="resource-icon">📖</span>
+                <div class="resource-info">
+                    <div class="resource-label">Documentation</div>
+                    <div class="resource-url">hermes-agent.nousresearch.com/docs</div>
+                </div>
+            </a>
+            <a class="resource-card" href="#" aria-label="Discord community">
+                <span class="resource-icon">🎮</span>
+                <div class="resource-info">
+                    <div class="resource-label">Community</div>
+                    <div class="resource-url">discord.gg/NousResearch</div>
+                </div>
+            </a>
+            <a class="resource-card" href="#" aria-label="Skills Hub">
+                <span class="resource-icon">🔧</span>
+                <div class="resource-info">
+                    <div class="resource-label">Skills Hub</div>
+                    <div class="resource-url">agentskills.io</div>
+                </div>
+            </a>
+            <a class="resource-card" href="#" aria-label="GitHub repository">
+                <span class="resource-icon">⭐</span>
+                <div class="resource-info">
+                    <div class="resource-label">GitHub</div>
+                    <div class="resource-url">NousResearch/hermes-agent</div>
+                </div>
+            </a>
+        </div>
+
+        <p class="cta-closing reveal">One Agent. Every Platform. Always Learning.</p>
+    </div>
+
+    <div class="slide-num">12 / 12</div>
+</section>
+
+
+<script>
+/* ===========================================
+   PARTICLE SYSTEM — for title and CTA slides
+   =========================================== */
+function initParticles(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animFrame;
+
+    function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COUNT = window.innerWidth < 600 ? 40 : 70;
+    for (let i = 0; i < COUNT; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.5 + 0.3,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
+            alpha: Math.random() * 0.5 + 0.1,
+            color: Math.random() > 0.7 ? '255,45,120' : '0,229,255',
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+            ctx.fill();
+        });
+        // Draw connecting lines for nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(0,229,255,${0.06 * (1 - dist / 80)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        animFrame = requestAnimationFrame(draw);
+    }
+    draw();
+    return () => cancelAnimationFrame(animFrame);
+}
+
+// Only run particles when those slides are visible (perf)
+const particleCleanups = {};
+
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides   = Array.from(document.querySelectorAll('.slide'));
+        this.total    = this.slides.length;
+        this.current  = 0;
+
+        this.progressBar = document.getElementById('progressBar');
+        this.navDotsEl   = document.getElementById('navDots');
+
+        this.setupNavDots();
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupScrollProgress();
+        this.setupWheelNav();
+    }
+
+    /* --- Navigation Dots --- */
+    setupNavDots() {
+        this.slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className  = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            dot.addEventListener('click', () => this.goTo(i));
+            this.navDotsEl.appendChild(dot);
+        });
+        this.dots = Array.from(this.navDotsEl.querySelectorAll('.nav-dot'));
+    }
+
+    setActive(index) {
+        this.current = index;
+        this.dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        const pct = this.total > 1 ? (index / (this.total - 1)) * 100 : 0;
+        this.progressBar.style.width = pct + '%';
+        this.progressBar.setAttribute('aria-valuenow', Math.round(pct));
+    }
+
+    goTo(index) {
+        index = Math.max(0, Math.min(this.total - 1, index));
+        this.slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* --- Intersection Observer: triggers .visible for animations --- */
+    setupIntersectionObserver() {
+        const opts = { threshold: 0.4 };
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const idx = this.slides.indexOf(entry.target);
+                    if (idx !== -1) this.setActive(idx);
+
+                    // Start/stop particles on relevant slides
+                    const id = entry.target.id;
+                    if (id === 'slide-1' && !particleCleanups['p1']) {
+                        particleCleanups['p1'] = initParticles('particles-canvas');
+                    }
+                    if (id === 'slide-12' && !particleCleanups['p12']) {
+                        particleCleanups['p12'] = initParticles('particles-canvas-2');
+                    }
+                }
+            });
+        }, opts);
+        this.slides.forEach(s => observer.observe(s));
+    }
+
+    /* --- Keyboard Navigation --- */
+    setupKeyboardNav() {
+        document.addEventListener('keydown', e => {
+            if (e.target.getAttribute('contenteditable')) return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault(); this.goTo(this.current + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault(); this.goTo(this.current - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault(); this.goTo(0);
+            } else if (e.key === 'End') {
+                e.preventDefault(); this.goTo(this.total - 1);
+            }
+        });
+    }
+
+    /* --- Touch / Swipe Navigation --- */
+    setupTouchNav() {
+        let startY = 0, startX = 0;
+        document.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dy = startY - e.changedTouches[0].clientY;
+            const dx = startX - e.changedTouches[0].clientX;
+            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+                this.goTo(dy > 0 ? this.current + 1 : this.current - 1);
+            }
+        }, { passive: true });
+    }
+
+    /* --- Mouse Wheel (debounced) --- */
+    setupWheelNav() {
+        let lastWheel = 0;
+        window.addEventListener('wheel', e => {
+            const now = Date.now();
+            if (now - lastWheel < 800) return;
+            lastWheel = now;
+            this.goTo(e.deltaY > 0 ? this.current + 1 : this.current - 1);
+        }, { passive: true });
+    }
+
+    /* --- Scroll Progress (fallback for native scroll) --- */
+    setupScrollProgress() {
+        window.addEventListener('scroll', () => {
+            const scrollTop  = window.scrollY;
+            const docHeight  = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            this.progressBar.style.width = pct + '%';
+        }, { passive: true });
+    }
+}
+
+// Boot
+document.addEventListener('DOMContentLoaded', () => {
+    new SlidePresentation();
+});
+</script>
+
+</body>
+</html>

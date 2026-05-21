@@ -1,0 +1,140 @@
+# =============================================================================
+# Hermes Agent — Main configuration
+# =============================================================================
+# Destination: ~/.hermes/config.yaml
+#
+# Setup philosophy:
+#   • PRIMARY  = Anthropic native (Claude Sonnet 4.6)
+#   • FALLBACK = OpenRouter (auto-failover when primary errors/rate-limits)
+#   • LOCAL    = Ollama pre-wired for quick switching with `/model`
+#
+# Change provider any time without editing this file:
+#   • `hermes model`                — interactive picker, persists choice
+#   • `/model <id>` in chat         — one-shot switch for current session
+#   • `hermes chat --model <id>`    — per-invocation override
+# =============================================================================
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PRIMARY MODEL
+# ─────────────────────────────────────────────────────────────────────────────
+# IMPORTANT: model-slug format depends on provider.
+#   • Native Anthropic provider  → BARE slug:   "claude-sonnet-4-6"
+#   • OpenRouter aggregator      → VENDOR slug: "anthropic/claude-sonnet-4-6"
+# Mixing them triggers a doctor warning.
+model:
+  default: "claude-sonnet-4-6"
+  provider: "anthropic"
+
+  # Other valid bare slugs for the native Anthropic provider:
+  #   claude-opus-4-7     — smartest, pricier
+  #   claude-sonnet-4-6   — balanced (default)
+  #   claude-haiku-4-5    — cheapest, fastest
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTOMATIC FAILOVER — fires when primary hits rate-limits / errors
+# ─────────────────────────────────────────────────────────────────────────────
+# Fires at most once per session. Conversation continues uninterrupted.
+# Note: fallback uses OpenRouter, so vendor-prefix is correct here.
+fallback_providers:
+  - provider: openrouter
+    model: anthropic/claude-sonnet-4
+  # Append more entries (tried in order) if you want a longer chain:
+  # - provider: openrouter
+  #   model: google/gemini-2.5-pro
+  # - provider: ollama
+  #   model: qwen2.5-coder:32b
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUXILIARY MODELS — vision, summarization, compression, etc.
+# ─────────────────────────────────────────────────────────────────────────────
+# CRITICAL GOTCHA: by default these try OpenRouter first. If you only have an
+# Anthropic key, vision/web-extract/compression silently fail with confusing
+# errors. Setting `provider: "main"` routes them through your primary provider.
+auxiliary:
+  vision:
+    provider: "main"      # Claude Sonnet 4.6 is multimodal, so this works.
+  web_extract:
+    provider: "main"
+  compression:
+    provider: "main"
+  skill_matching:
+    provider: "main"
+  memory:
+    provider: "main"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CUSTOM PROVIDERS — Ollama (local LLM) pre-wired
+# ─────────────────────────────────────────────────────────────────────────────
+# After `ollama serve` is running with a model, switch to it with:
+#   /model custom:ollama:qwen2.5-coder:32b
+# To make it the default, change `model.default` and `model.provider` above.
+providers:
+  ollama:
+    base_url: "http://localhost:11434/v1"
+    # Ollama needs no API key, but the OpenAI-compatible endpoint expects
+    # *something* in the Authorization header. "ollama" is the convention.
+    api_key: "ollama"
+    # Ollama rarely exposes /v1/models with accurate context windows, so set
+    # it explicitly. Match your actual model.
+    context_length: 65536
+
+  # Example: another OpenAI-compatible endpoint (LM Studio, vLLM, llama.cpp).
+  # Uncomment and adjust if you run one.
+  # lmstudio:
+  #   base_url: "http://localhost:1234/v1"
+  #   api_key: "lmstudio"
+  #   context_length: 65536
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TERMINAL BACKEND — where shell commands the agent runs actually execute
+# ─────────────────────────────────────────────────────────────────────────────
+terminal:
+  # "local"  = runs on your Mac directly (fast, full access — start here)
+  # "docker" = sandboxed in a container (safer for autonomous mode)
+  # "ssh"    = run commands on a remote box you control
+  backend: "local"
+  cwd: "."
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MEMORY & SKILLS — the reason you picked Hermes over plain Claude
+# ─────────────────────────────────────────────────────────────────────────────
+memory:
+  memory_enabled: true          # Cross-session memory of facts & decisions
+  user_profile_enabled: true    # Builds a model of who you are over time
+  memory_char_limit: 2200       # ≈ 800 tokens injected per turn
+  user_char_limit: 1375         # ≈ 500 tokens for user profile
+
+skills:
+  # Auto-generated skills are scanned for risky patterns before being saved.
+  # Default is `false` (legitimate $ENV_VAR mentions trip the heuristic).
+  # Flip to `true` if you want a confirmation prompt on every new skill write.
+  guard_agent_created: false
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BROWSER — Hermes can drive a real Chrome for research/scraping tasks
+# ─────────────────────────────────────────────────────────────────────────────
+# Requires the agent-browser Node package: run `npm install` in the repo root.
+browser:
+  inactivity_timeout: 120
+  command_timeout: 30
+  record_sessions: false
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GATEWAY — multi-channel messaging (Telegram, Discord, Slack, etc.)
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI-only for now. When you're ready, run `hermes gateway setup` to wire up
+# Telegram/Discord/Slack/WhatsApp interactively — it edits this section for you.
+#
+# gateway:
+#   platforms:
+#     telegram:
+#       enabled: true
+#       # bot_token is read from TELEGRAM_BOT_TOKEN in .env

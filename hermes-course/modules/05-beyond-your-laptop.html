@@ -1,0 +1,272 @@
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Beyond Your Laptop</h1>
+      <p class="module-subtitle">Hermes is not just a terminal app. It runs on a $5 VPS, hibernates on serverless cloud, receives messages from Telegram, schedules tasks at 3am, and delegates work to sub-agents running in parallel.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The Gateway -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Talk to Hermes from Anywhere</h2>
+        <p>
+          The
+          <span class="term" data-definition="The Gateway is a long-running background process that bridges messaging platforms to the Hermes agent. One gateway process handles multiple platforms simultaneously — Telegram, Discord, and Slack can all send messages to the same agent at the same time.">Gateway</span>
+          is a background process that listens for messages from whatever platforms you configure. Run it once — it stays up and serves you from every app on every device.
+        </p>
+
+        <div class="arch-diagram animate-in">
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Messaging Platforms</h4>
+            <div class="arch-component" data-desc="Telegram — the most popular platform for Hermes. Supports file attachments, voice memos, and inline buttons.">
+              <div class="arch-icon">✈️</div>
+              <span>Telegram</span>
+            </div>
+            <div class="arch-component" data-desc="Discord — bot integration for server workflows. Slash commands work natively.">
+              <div class="arch-icon">🎮</div>
+              <span>Discord</span>
+            </div>
+            <div class="arch-component" data-desc="Slack — workspace integration. Direct messages and channel mentions both work.">
+              <div class="arch-icon">💼</div>
+              <span>Slack</span>
+            </div>
+            <div class="arch-component" data-desc="WhatsApp — connect via the Meta Business API. Send and receive messages from your existing WhatsApp number.">
+              <div class="arch-icon">💬</div>
+              <span>WhatsApp</span>
+            </div>
+            <div class="arch-component" data-desc="Signal — privacy-focused messaging. Messages are end-to-end encrypted in transit.">
+              <div class="arch-icon">🔒</div>
+              <span>Signal</span>
+            </div>
+            <div class="arch-component" data-desc="Email — receive tasks via email and reply with results. Works with any standard SMTP/IMAP server.">
+              <div class="arch-icon">📧</div>
+              <span>Email</span>
+            </div>
+          </div>
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Gateway Process</h4>
+            <div class="arch-component" data-desc="The gateway/run.py GatewayRunner — manages all platform connections and routes messages to the correct AIAgent session. Uses an LRU cache to manage active sessions.">
+              <div class="arch-icon">📡</div>
+              <span>GatewayRunner</span>
+            </div>
+            <div class="arch-component" data-desc="Per-user session cache — each user (identified by their platform ID) gets their own isolated AIAgent with its own memory and conversation history.">
+              <div class="arch-icon">👤</div>
+              <span>Session Cache</span>
+            </div>
+          </div>
+          <div class="arch-description" id="arch-desc">Click any component to learn what it does</div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🛡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Security: Pairing and Allowlists</strong>
+            <p>The Gateway does not respond to strangers. Access is controlled by a <span class="term" data-definition="A DM pairing is a handshake process where you prove ownership of a platform account before it can talk to your agent. Like linking a phone number to an app — the agent only responds to verified accounts.">DM pairing</span> system and an allowlist. Only accounts you approve can send commands to your agent.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Cron scheduler -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Scheduled Tasks: Hermes at 3am</h2>
+        <p>
+          Hermes has a built-in
+          <span class="term" data-definition="A cron scheduler runs tasks automatically on a timed schedule. The name comes from 'cron', a Unix system daemon. You describe the schedule (every day at 9am, every Monday, etc.) and the task runs without you having to be at your computer.">cron scheduler</span>
+          that runs jobs while you sleep. Each cron job is a natural-language task description — no code required.
+        </p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Describe the task in plain English</strong>
+              <p>"Every morning at 8am: fetch the latest news about AI, summarize the top 5 stories, and send them to my Telegram."</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Gateway ticks the scheduler every 60 seconds</strong>
+              <p>The gateway process checks the jobs file once per minute. When a job is due, it spawns a fresh AIAgent with the task description as the initial prompt.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Isolated session — no prior context</strong>
+              <p>Each cron run starts fresh, with no memory of previous runs. This prevents context buildup and keeps each run independent and predictable.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Results delivered to any platform</strong>
+              <p>The output can be sent to Telegram, Discord, email, or saved to a file. Configure the delivery target when you create the job.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Sub-agents and delegation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Parallel Sub-Agents: Divide and Conquer</h2>
+        <p>
+          For large tasks, Hermes can
+          <span class="term" data-definition="Delegation means spawning a child agent to handle a subtask independently. The child runs in its own context with its own tools, and reports results back to the parent. This is how Hermes handles tasks too large for one context window.">delegate</span>
+          parts of the work to child agents running in parallel. Each child gets a clean slate — no access to the parent conversation, no shared state.
+        </p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Parent agent receives a large task: audit the codebase security across 5 modules."},
+          {"highlight":"flow-actor-1","label":"Parent decides to split the work. Calling delegate_task with 5 separate subtasks."},
+          {"highlight":"flow-actor-2","label":"Child agent 1 starts: auditing the auth module. Runs in its own thread with its own terminal session.","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"Child agent 2 starts simultaneously: auditing the API endpoints.","packet":true,"from":"actor-1","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"Child agent 3 starts simultaneously: auditing the database layer.","packet":true,"from":"actor-1","to":"actor-4"},
+          {"highlight":"flow-actor-2","label":"All 3 children are now running in parallel. Each uses up to 50 tool calls on its subtask."},
+          {"highlight":"flow-actor-1","label":"Children finish and report results. Parent receives 3 security reports.","packet":true,"from":"actor-2","to":"actor-1"},
+          {"highlight":"flow-actor-1","label":"Parent synthesizes the 3 reports into one final security audit document."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">👑</div>
+              <span>Parent Agent</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🤖</div>
+              <span>Child 1</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">🤖</div>
+              <span>Child 2</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">🤖</div>
+              <span>Child 3</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet-5"></div>
+          <div class="flow-step-label" id="flow-label-5">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🚧</div>
+          <div class="callout-content">
+            <strong class="callout-title">What Children Cannot Do</strong>
+            <p>Child agents are deliberately restricted. They cannot: call delegate_task again (no recursive nesting), use the clarify tool (no user interaction), write to shared memory, or send platform messages. This prevents runaway chains and side effects.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Execution backends -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where the Code Actually Runs</h2>
+        <p>
+          When the <code>terminal</code> tool executes a command, where does it run? That depends on which
+          <span class="term" data-definition="A terminal backend is the environment where shell commands actually execute. Hermes supports 7 different backends — from your local machine to Docker containers to cloud sandboxes — switchable via the TERMINAL_ENV environment variable.">execution backend</span>
+          you configure.
+        </p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-accent-light)">💻</div>
+            <h4 class="pattern-title">Local (default)</h4>
+            <p class="pattern-desc">Commands run directly on your machine. Fastest, but the agent has access to your full filesystem.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-info-light)">🐳</div>
+            <h4 class="pattern-title">Docker</h4>
+            <p class="pattern-desc">Commands run inside a container. Isolated from your host. Useful when you want sandboxing for untrusted code.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-3)">
+            <div class="pattern-icon" style="background: #F0EBFF">🌐</div>
+            <h4 class="pattern-title">SSH</h4>
+            <p class="pattern-desc">Commands run on a remote server over SSH. Control a VPS or cloud VM from your local Hermes instance.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-accent-light)">⚡</div>
+            <h4 class="pattern-title">Modal / Vercel Sandbox</h4>
+            <p class="pattern-desc">Commands run on serverless cloud infrastructure. Hibernates when idle, wakes on demand. Near-zero cost between sessions.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Final quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Bringing It All Together</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="A cron job is exactly the right tool here. It runs on a schedule, spawns a fresh agent with the task description, executes the research and analysis, and delivers the result to your chosen platform. No need for you to be at the keyboard."
+               data-explanation-wrong="Think about which Hermes feature is specifically designed for recurring, timed, automated tasks that run without user interaction.">
+            <div class="scenario-block">
+              <div class="scenario-context">
+                <span class="scenario-label">Scenario</span>
+                <p>You want Hermes to automatically check your GitHub issues every Monday morning, summarize any new ones, and send the summary to your Telegram. You will be asleep when this runs. What do you use?</p>
+              </div>
+            </div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A skill — create a skill called "github-summary" and run it manually each Monday</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A sub-agent — delegate the task to a child agent from your main session</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A cron job — schedule the task to run automatically every Monday morning with Telegram delivery</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="A Docker backend isolates the agent from your host machine. Even if the untrusted code does something destructive inside the container, your actual files and system are protected. This is exactly the security model Docker is designed for."
+               data-explanation-wrong="Think about the execution backend options. Which one creates a hard boundary between the code and your actual machine, so that anything that happens inside cannot affect the outside?">
+            <h3 class="quiz-question">A user wants to let Hermes run code submitted by strangers on the internet. Which execution backend should they configure to protect their machine?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Local — fastest, and Hermes has its own security checks</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Docker — commands run in an isolated container, protecting the host machine</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SSH — run on a remote server so the local machine is unaffected</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-accent" style="margin-top: var(--space-12)">
+          <div class="callout-icon">🎓</div>
+          <div class="callout-content">
+            <strong class="callout-title">You Now Have the Map</strong>
+            <p>You understand the full Hermes architecture: the CLI collects input, the AIAgent runs the loop, tools do the real work, the Gateway connects messaging platforms, skills encode procedures, memory persists context, and execution backends let you run anywhere. Use this map to steer your AI assistant with precision.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

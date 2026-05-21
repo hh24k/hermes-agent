@@ -1,0 +1,256 @@
+<section class="module" id="module-4" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">The Learning Loop</h1>
+      <p class="module-subtitle">Most AI tools forget everything when you close the window. Hermes remembers — and gets smarter with every session through skills, memory, and a background curator.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: Skills -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Skills: Saved Procedures</h2>
+        <p>
+          Imagine if every time you solved a hard problem, you wrote the solution steps in a notebook. Next time, you hand the notebook to your assistant before they start. That is exactly what
+          <span class="term" data-definition="A skill in Hermes is a Markdown file that contains detailed instructions for a specific task. When you invoke a skill with /skill-name, its text is injected into the system prompt, giving the agent a procedure to follow. Skills can be created by you, by the agent automatically, or downloaded from the Skills Hub.">skills</span>
+          do.
+        </p>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">📝</div>
+            <div>
+              <strong>Markdown files as procedures</strong>
+              <p>Each skill is a <code>.md</code> file in <code>~/.hermes/skills/</code>. You can read, edit, and create them in any text editor. They are plain text — no code required.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">⚡</div>
+            <div>
+              <strong>Invoked with a slash command</strong>
+              <p>Type <code>/deploy-app</code> and the skill named "deploy-app" is loaded. The agent reads the procedure and follows it step by step for your specific project.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">🤖</div>
+            <div>
+              <strong>Auto-created after complex tasks</strong>
+              <p>After a long, successful multi-step task, Hermes can create a skill automatically — turning your one-off solution into a reusable procedure for next time.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🌐</div>
+            <div>
+              <strong>Shareable via Skills Hub</strong>
+              <p>The <span class="term" data-definition="agentskills.io is an open community registry where anyone can publish and download Hermes skills. Like an app store, but for AI procedures.">Skills Hub</span> at agentskills.io lets you publish your skills and install others. One command: <code>hermes skills install &lt;name&gt;</code>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Memory -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Memory: What Hermes Remembers About You</h2>
+        <p>
+          Every session, the
+          <span class="term" data-definition="The MemoryManager is the component that reads, writes, and injects memory into the system prompt. It coordinates multiple memory backends and decides what context to surface at the start of each turn.">MemoryManager</span>
+          injects relevant context into the system prompt — so Hermes knows who you are before you say a word.
+        </p>
+
+        <div class="badge-list animate-in">
+          <div class="badge-item">
+            <code class="badge-code">MEMORY.md</code>
+            <span class="badge-desc">General facts: your tech stack, preferred languages, ongoing projects. Hermes adds entries here with the <code>memory</code> tool.</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">USER.md</code>
+            <span class="badge-desc">Your personal profile: communication style, timezone, long-term goals. Updated by the Honcho dialectic modeling system over many sessions.</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">SOUL.md</code>
+            <span class="badge-desc">The agent personality file. Want Hermes to be formal? Concise? Funny? Write it here. Loaded into every system prompt.</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">state.db</code>
+            <span class="badge-desc">An SQLite database storing full conversation history. Has FTS5 full-text search — so Hermes can search across all past sessions to recall what you discussed weeks ago.</span>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-content">
+            <strong class="callout-title">FTS5: The Memory Search Engine</strong>
+            <p>
+              <span class="term" data-definition="FTS5 (Full-Text Search version 5) is a built-in SQLite extension that indexes text for fast search. It works like a search engine inside your local database — you can search for any phrase across thousands of past messages in milliseconds.">FTS5</span>
+              is a full-text search engine built into SQLite. When Hermes calls the <code>session_search</code> tool, it searches every message you have ever sent or received — instantly — without needing an external service. Your history never leaves your machine.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Code translation — curator -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Curator: Background Skill Maintenance</h2>
+        <p>
+          After you use skills repeatedly, some become outdated or redundant. The
+          <span class="term" data-definition="The Curator is a background process that periodically reviews your agent-created skills, archives old ones, and patches skills that need updating. It runs a separate AIAgent fork on a timer — a mini AI session that cleans up your skill library while you are idle.">Curator</span>
+          runs while you are idle and keeps the skill library healthy automatically.
+        </p>
+        <p>
+          Here is the timing configuration from the actual <code>agent/curator.py</code>:
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment"># From agent/curator.py</span></span>
+<span class="code-line">DEFAULT_INTERVAL_HOURS = <span class="code-number">24</span> * <span class="code-number">7</span>  <span class="code-comment"># 7 days</span></span>
+<span class="code-line">DEFAULT_MIN_IDLE_HOURS = <span class="code-number">2</span></span>
+<span class="code-line">DEFAULT_STALE_AFTER_DAYS = <span class="code-number">30</span></span>
+<span class="code-line">DEFAULT_ARCHIVE_AFTER_DAYS = <span class="code-number">90</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The Curator runs at most once per week (24 hours × 7 days).</p>
+              <p class="tl">It only runs when Hermes has been idle for at least 2 hours — never while you are actively using it.</p>
+              <p class="tl">Skills that have not been used in 30 days are marked "stale" (a gentle warning).</p>
+              <p class="tl">Skills unused for 90 days are archived — moved aside, not deleted. Recoverable anytime.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">🛡️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Never Auto-Deletes</strong>
+            <p>The Curator follows a strict rule: it only archives, never deletes. An archived skill can always be restored. This is a safety-first design — your work is never thrown away without a way to recover it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Learning loop chat animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Full Learning Loop in Action</h2>
+        <p>
+          After you complete a complex task, here is how the learning loop works behind the scenes:
+        </p>
+
+        <div class="chat-window" id="chat-learning">
+          <div class="chat-messages">
+            <div class="chat-message" data-sender="user" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-accent)">U</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-accent)">You</span>
+                <p>Can you help me set up a full CI/CD pipeline for my project? [30 minutes and 15 tool calls later...] That worked perfectly, thank you!</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>That was a complex 15-step task. I am creating a skill from this session so we never have to rediscover these steps.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="memory" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">M</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Memory</span>
+                <p>Saving to MEMORY.md: "User prefers GitHub Actions for CI/CD. Uses Docker for containerization. Deploy target is AWS ECS."</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="skills" style="display:none">
+              <div class="chat-avatar" style="background: #9E5CF7">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: #9E5CF7">Skills</span>
+                <p>Skill created: ci-cd-github-actions.md with 12 steps covering repo setup, workflow file structure, secrets configuration, and deploy triggers.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Curator (7 days later)</span>
+                <p>Reviewing skills... ci-cd-github-actions.md has been used 3 times. Patching it with improvements observed from recent sessions. Archived 2 obsolete skills.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" id="chat-learning-typing" style="display:none">
+            <div class="chat-avatar" id="chat-learning-typing-avatar" style="background: var(--color-actor-2)">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Skills are Markdown files — plain text. You can open them in any editor, read them, and modify them directly. This is intentional: skills are human-readable by design, so you can audit and edit what the agent has learned."
+               data-explanation-wrong="Think about how Hermes stores skills. Are they in a database? Binary files? The README mentions they are in ~/.hermes/skills/ — what format would be easiest for a human to read and edit?">
+            <h3 class="quiz-question">A colleague says Hermes learned a bad workflow and keeps repeating it. How would you fix the skill that is causing the problem?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Reset the entire skill database — there is no way to edit individual skills</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Open the skill Markdown file in a text editor and correct the steps directly</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Retrain the underlying LLM with better data</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="The Curator only archives — moves to a recoverable location. It never permanently deletes. This is a deliberate safety choice: you can always restore an archived skill with the skill_manage tool."
+               data-explanation-wrong="Check the Curator invariants from the code translation. What does it do to skills unused for 90 days? Archive or delete?">
+            <h3 class="quiz-question">A skill you built 4 months ago has not been used. What does the Curator do to it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Archives it — moves it aside, but you can restore it anytime</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Permanently deletes it to save space</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Emails you a warning before taking any action</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

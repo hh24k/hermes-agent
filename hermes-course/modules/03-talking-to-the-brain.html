@@ -1,0 +1,277 @@
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Talking to the Brain</h1>
+      <p class="module-subtitle">How Hermes connects to any AI model, describes its tools, and runs multiple actions at once — without being locked to any single provider.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The Provider System -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Any Model, No Lock-In</h2>
+        <p>
+          Most AI tools are wired to one provider. Hermes is built differently. It speaks a common language — the
+          <span class="term" data-definition="The OpenAI API format is a standard way of sending messages to an AI model. It was invented by OpenAI, but now almost every AI provider supports it — so Hermes only needs to know one protocol to talk to 200+ models.">OpenAI API format</span>
+          — that nearly every AI provider understands. Switching from GPT-4o to Claude to a local model is one command: <code>hermes model</code>.
+        </p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-accent-light)">🌐</div>
+            <h4 class="pattern-title">OpenRouter</h4>
+            <p class="pattern-desc">200+ models through one API key. Anthropic, Meta, Mistral, Google — all available. Pay per token, no subscriptions.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-info-light)">🏠</div>
+            <h4 class="pattern-title">Local Models</h4>
+            <p class="pattern-desc">Point Hermes at an Ollama server, LM Studio, or any OpenAI-compatible endpoint. Your data stays on your machine.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-success-light)">⚡</div>
+            <h4 class="pattern-title">Nous Portal</h4>
+            <p class="pattern-desc">Direct access to Nous Research models — the same team that built Hermes.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-3)">
+            <div class="pattern-icon" style="background: #F0EBFF">🌙</div>
+            <h4 class="pattern-title">Kimi, MiniMax, GLM</h4>
+            <p class="pattern-desc">Chinese frontier models included out of the box — Moonshot, MiniMax, Xiaomi MiMo, z.ai/GLM.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">The Power of a Common Standard</strong>
+            <p>The OpenAI API format is like USB-C for AI models — one plug that works everywhere. When you know this, you can confidently tell your AI to "add support for a new provider" because you understand what that means: implement the same request/response format.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Tool schemas -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How the AI Knows What Tools Exist</h2>
+        <p>
+          Before each conversation, the AIAgent compiles a list of available tools and sends it to the LLM as part of the prompt.
+          Each tool is described by a <span class="term" data-definition="A schema is a structured description of a tool's name, what it does, and what inputs it accepts. The LLM reads these schemas to know which tools it can call and how to use them. Think of it as a menu — the LLM picks from the menu.">schema</span>
+          — a structured spec the model reads to know when and how to call that tool.
+        </p>
+        <p>
+          Here is the actual tool list from <code>toolsets.py</code> — the core tools every Hermes session loads:
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment"># From toolsets.py — the core tool list</span></span>
+<span class="code-line">_HERMES_CORE_TOOLS = [</span>
+<span class="code-line">    <span class="code-comment"># Web</span></span>
+<span class="code-line">    <span class="code-string">"web_search"</span>, <span class="code-string">"web_extract"</span>,</span>
+<span class="code-line">    <span class="code-comment"># Terminal + process management</span></span>
+<span class="code-line">    <span class="code-string">"terminal"</span>, <span class="code-string">"process"</span>,</span>
+<span class="code-line">    <span class="code-comment"># File manipulation</span></span>
+<span class="code-line">    <span class="code-string">"read_file"</span>, <span class="code-string">"write_file"</span>, <span class="code-string">"patch"</span>, <span class="code-string">"search_files"</span>,</span>
+<span class="code-line">    <span class="code-comment"># Skills</span></span>
+<span class="code-line">    <span class="code-string">"skills_list"</span>, <span class="code-string">"skill_view"</span>, <span class="code-string">"skill_manage"</span>,</span>
+<span class="code-line">    <span class="code-comment"># Planning and memory</span></span>
+<span class="code-line">    <span class="code-string">"todo"</span>, <span class="code-string">"memory"</span>,</span>
+<span class="code-line">]</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A list of tool names that are loaded for every session.</p>
+              <p class="tl">web_search: search Google. web_extract: read a webpage.</p>
+              <p class="tl">terminal: run shell commands. process: manage background processes.</p>
+              <p class="tl">Four file tools: read, write, apply a diff (patch), and search inside files.</p>
+              <p class="tl">Three skills tools: list available skills, view one, create/edit/delete them.</p>
+              <p class="tl">Two meta tools: todo (task tracking) and memory (write to long-term memory).</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Each name in this list maps to a Python function in <code>tools/</code>. That function is what actually runs when the LLM asks for it. The schema (the description + parameter spec) is defined right next to the function code.</p>
+      </section>
+
+      <!-- Screen 3: Parallel execution -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Running Tools in Parallel</h2>
+        <p>
+          When the LLM asks for multiple tools at once — say, "search the web AND read this file" — Hermes can run them
+          <span class="term" data-definition="Parallel execution means running multiple tasks at the same time, not one after the other. On a computer, this uses threads — separate mini-processes that run concurrently. It makes Hermes faster when multiple independent things need to happen.">in parallel</span>
+          instead of waiting for each one to finish. But not all tools are safe to run simultaneously.
+        </p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Read-only tools are always parallel-safe</strong>
+              <p>web_search, read_file, vision_analyze, session_search — these only read data. Running them simultaneously is safe because they do not change anything.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>File-writing tools are parallel-safe for different paths</strong>
+              <p>write_file and patch can run in parallel if they target different files. Writing to the same file at the same time would corrupt it.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Interactive tools are never parallel</strong>
+              <p>The "clarify" tool asks you a question. Running two of these at once would produce two prompts simultaneously — impossible to answer. It always runs alone.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Up to 8 workers run at once</strong>
+              <p>Hermes uses a thread pool of up to 8 parallel workers. If the LLM requests 10 tools, the first 8 start immediately, and the remaining 2 queue up.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">⚡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why This Matters in Practice</strong>
+            <p>If you ask Hermes to "research 5 companies," it can open 5 web searches at the same time instead of 5 in a row. A task that would take 30 seconds sequentially can finish in 8 seconds. Knowing this helps you write prompts that take advantage of parallelism.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Group chat between AIAgent and LLM -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The AIAgent and LLM in Conversation</h2>
+        <p>
+          The AIAgent and LLM exchange messages in a structured format.
+          Watch how a multi-tool request gets negotiated:
+        </p>
+
+        <div class="chat-window" id="chat-brain">
+          <div class="chat-messages">
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>[system] You are Hermes. Available tools: terminal, web_search, read_file, write_file... [user] Research the top 3 Python web frameworks and write a comparison to frameworks.md</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="llm" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">LLM</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">LLM</span>
+                <p>I will call web_search("Python web frameworks comparison 2024"), web_search("FastAPI vs Django vs Flask"), and web_search("Python framework benchmarks") all at once.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>All 3 are read-only — running in parallel. Dispatching to thread pool... [800ms later] All done. Returning 3 sets of search results.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="llm" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">LLM</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">LLM</span>
+                <p>I have enough information. Calling write_file("frameworks.md", content=...) with the full comparison article.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>write_file executed. File created at frameworks.md. Feeding result back to LLM for final response.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="llm" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">LLM</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">LLM</span>
+                <p>Done! I researched and compared Django, FastAPI, and Flask. The comparison is saved to frameworks.md. Here are the key findings...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" id="chat-brain-typing" style="display:none">
+            <div class="chat-avatar" id="chat-brain-typing-avatar" style="background: var(--color-actor-2)">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The OpenAI API format is a shared standard. By implementing it once, Hermes can talk to 200+ models without writing separate code for each. When you switch models with 'hermes model', the connection layer stays the same — only the target endpoint changes."
+               data-explanation-wrong="Think about why Hermes can switch between so many different providers without code changes. What do they all have in common?">
+            <h3 class="quiz-question">Why can Hermes switch between GPT-4o, Claude, and a local Ollama model without changing its source code?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Hermes has custom adapters hand-written for each provider</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All supported providers speak the same OpenAI API format, so Hermes only needs one implementation</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The LLM handles model-switching internally</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="The clarify tool asks the user a direct question. If two of them ran simultaneously, two prompts would appear on screen at the same time — which is impossible to answer. So interactive tools always run alone."
+               data-explanation-wrong="Think about what makes the clarify tool different from web_search or read_file. What happens when clarify runs that could not happen simultaneously?">
+            <h3 class="quiz-question">You are building a new tool that pops up a dialog asking the user for approval. Should it be allowed to run in parallel with other tools?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — all tools can run in parallel for maximum speed</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but only with other read-only tools</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — interactive tools that require user input must always run alone</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

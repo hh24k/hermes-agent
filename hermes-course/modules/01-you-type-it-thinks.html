@@ -1,0 +1,206 @@
+<section class="module" id="module-1" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">You Type. It Thinks.</h1>
+      <p class="module-subtitle">Trace a single message from your keyboard all the way to the AI model and back — and understand every step along the way.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: What is Hermes? -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What is Hermes Agent?</h2>
+        <p>
+          Hermes is an <span class="term" data-definition="An AI agent is a program that can take actions on your behalf — not just answer questions, but actually do things: run code, browse the web, manage files, send messages. Think of it as an AI with hands.">AI agent</span>
+          you run in your terminal. You type plain-English instructions. It figures out what to do, calls the right tools, and gets it done — writing code, searching the web, managing files, sending Telegram messages, all without you having to think about the steps.
+        </p>
+        <p>
+          It was built by <strong>Nous Research</strong> and works with any
+          <span class="term" data-definition="An LLM (Large Language Model) is the AI brain inside tools like ChatGPT or Claude. It processes your words and generates responses. Hermes can swap between 200+ different LLMs without changing a line of code.">LLM</span>
+          — OpenAI, Claude, local models, or anything in between. Think of Hermes as the operating system, and the LLM as the CPU you plug in.
+        </p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-accent-light)">⌨️</div>
+            <h4 class="pattern-title">Terminal Interface</h4>
+            <p class="pattern-desc">A real terminal UI with history, autocomplete, and streaming output — built with <span class="term" data-definition="prompt_toolkit is a Python library for building interactive command-line applications with features like syntax highlighting, autocomplete, and multi-line editing.">prompt_toolkit</span>.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-info-light)">🔧</div>
+            <h4 class="pattern-title">40+ Built-in Tools</h4>
+            <p class="pattern-desc">Terminal, web search, file editing, browser automation, image generation, voice — all wired and ready to use.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-success-light)">🧠</div>
+            <h4 class="pattern-title">Self-Improving</h4>
+            <p class="pattern-desc">Creates skills from experience, remembers who you are across sessions, and improves its own procedures over time.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: The journey of a message — flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Journey of One Message</h2>
+        <p>
+          Imagine you type <code>"summarize the README in this folder"</code> and press Enter.
+          What happens next? Click through the steps below to follow your message through the system.
+        </p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"You press Enter. The CLI captures your message."},
+          {"highlight":"flow-actor-2","label":"CLI hands your message to the AIAgent — the engine that runs everything.","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-2","label":"AIAgent assembles a prompt: system instructions + tool list + your message. This is sent to the AI model."},
+          {"highlight":"flow-actor-3","label":"The prompt travels to the LLM (could be GPT-4o, Claude, or any other model).","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-3","label":"The LLM reads the prompt and decides: to answer this, I need to read a file. It requests the read_file tool."},
+          {"highlight":"flow-actor-4","label":"AIAgent runs read_file. The README is fetched from disk.","packet":true,"from":"actor-3","to":"actor-4"},
+          {"highlight":"flow-actor-2","label":"Tool result (the README text) comes back to the AIAgent.","packet":true,"from":"actor-4","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"AIAgent sends the README content back to the LLM to summarize.","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-1","label":"LLM writes the summary and streams it back to your terminal. Done.","packet":true,"from":"actor-3","to":"actor-1"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">⌨️</div>
+              <span>Your Terminal</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🤖</div>
+              <span>AIAgent</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">🧠</div>
+              <span>LLM</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">🔧</div>
+              <span>Tools</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">The Loop Can Repeat</strong>
+            <p>The LLM might call multiple tools in sequence — read a file, then search the web, then write another file — before giving you a final answer. Each tool call is one iteration. Hermes caps this at 90 iterations per conversation so it never runs forever.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Code translation — the iteration budget -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How Hermes Knows When to Stop</h2>
+        <p>
+          Every conversation has an <span class="term" data-definition="An iteration budget is a counter that tracks how many tool calls the agent has made. When it reaches the limit, the agent must give a final answer instead of calling more tools. This prevents infinite loops.">iteration budget</span>
+          — a counter that caps how many tool calls can happen. Here is the actual code that manages it, from <code>run_agent.py</code>:
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">class</span> <span class="code-function">IterationBudget</span>:</span>
+<span class="code-line">    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(<span class="code-keyword">self</span>, max_total: <span class="code-function">int</span>):</span>
+<span class="code-line">        <span class="code-keyword">self</span>.max_total = max_total</span>
+<span class="code-line">        <span class="code-keyword">self</span>._used = <span class="code-number">0</span></span>
+<span class="code-line">        <span class="code-keyword">self</span>._lock = threading.<span class="code-function">Lock</span>()</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">def</span> <span class="code-function">consume</span>(<span class="code-keyword">self</span>) -> <span class="code-function">bool</span>:</span>
+<span class="code-line">        <span class="code-keyword">with</span> <span class="code-keyword">self</span>._lock:</span>
+<span class="code-line">            <span class="code-keyword">if</span> <span class="code-keyword">self</span>._used >= <span class="code-keyword">self</span>.max_total:</span>
+<span class="code-line">                <span class="code-keyword">return</span> <span class="code-value">False</span></span>
+<span class="code-line">            <span class="code-keyword">self</span>._used += <span class="code-number">1</span></span>
+<span class="code-line">            <span class="code-keyword">return</span> <span class="code-value">True</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A class (a reusable blueprint) called IterationBudget.</p>
+              <p class="tl">When created, it receives a maximum number of allowed steps.</p>
+              <p class="tl">Tracks how many steps have been used so far (starts at 0).</p>
+              <p class="tl">Uses a lock to prevent two tools from updating the counter at the same time (thread safety).</p>
+              <p class="tl">The "consume" method is called before each tool use.</p>
+              <p class="tl">It checks: have we hit the limit yet?</p>
+              <p class="tl">If yes — return False (stop, no more tools).</p>
+              <p class="tl">If no — increment the counter and return True (proceed).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔒</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why the Lock?</strong>
+            <p>Hermes can run multiple tools at the same time (in parallel). The <span class="term" data-definition="A lock (also called a mutex) is a mechanism that ensures only one thread can modify a shared variable at a time. Without it, two tools running simultaneously could both read the counter as '5', both increment it, and both write '6' — skipping a count.">lock</span> prevents two tools from both reading the counter as "5", incrementing it, and writing "6" — which would skip a count. This is called a race condition.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check Your Understanding</h2>
+
+        <div class="quiz-container" id="quiz-module1">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="The LLM is the reasoning engine, but it never directly runs tools. It asks the AIAgent to run them, receives the results, and then decides what to do next. The LLM only sees text — it never has direct access to your filesystem or the web."
+               data-explanation-wrong="Think about who actually executes the tool calls. The LLM can request tools, but who runs them? And the CLI only handles user input/output.">
+            <h3 class="quiz-question">When the LLM decides to run a tool (like reading a file), who actually executes it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The LLM runs it directly — it has access to the filesystem</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The AIAgent receives the request and runs the tool, then passes results back to the LLM</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The CLI (terminal interface) handles all tool execution</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly. The iteration budget is how Hermes prevents runaway loops. Without it, a confused AI could keep calling tools forever. 90 is the default cap — enough for complex multi-step tasks, but not infinite."
+               data-explanation-wrong="The iteration budget is not about conversation length or API costs — it counts tool calls within a single conversation turn. Think about what problem an infinite loop of tool calls would cause.">
+            <h3 class="quiz-question">What is the purpose of the IterationBudget in run_agent.py?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Limits how many messages you can send per day</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Tracks API costs to stay within budget</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Caps the number of tool calls per conversation to prevent infinite loops</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

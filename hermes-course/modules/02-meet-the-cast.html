@@ -1,0 +1,251 @@
+<section class="module" id="module-2" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Meet the Cast</h1>
+      <p class="module-subtitle">Six players, each with a specific role. Know who does what — and you can tell your AI assistant exactly where to make changes.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The six actors -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Six Players</h2>
+        <p>
+          Hermes is not one program — it is a team of specialized components. Each has one job.
+          Like a film crew, everyone knows their role and hands off to the next person at the right moment.
+        </p>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">⌨️</div>
+            <div>
+              <strong>CLI — <code>cli.py</code></strong>
+              <p>The face of Hermes. Renders the terminal UI, captures your keystrokes, streams the AI response back to your screen. Uses <span class="term" data-definition="prompt_toolkit is a Python library that lets you build rich terminal apps with features like syntax highlighting, autocomplete menus, and multi-line editing — the kind you see in tools like IPython.">prompt_toolkit</span> to draw the interface.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">🤖</div>
+            <div>
+              <strong>AIAgent — <code>run_agent.py</code></strong>
+              <p>The engine. Manages the conversation loop, sends prompts to the LLM, receives tool call requests, executes tools (in parallel when safe), and feeds results back. This is the 1,000+ line core of Hermes.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔧</div>
+            <div>
+              <strong>Tools — <code>tools/</code></strong>
+              <p>The hands. 40+ individual tools: terminal, web search, file read/write, browser automation, image generation, voice, and more. Each is a <span class="term" data-definition="A Python function that the AI can call by name. The function's name, description, and parameters are described in a 'schema' (a structured spec) that the LLM reads to know what tools are available.">callable function</span> with a description the LLM reads to know when to use it.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">📡</div>
+            <div>
+              <strong>Gateway — <code>gateway/</code></strong>
+              <p>The messaging bridge. Connects Hermes to Telegram, Discord, Slack, WhatsApp, Signal, and more. One running process serves all platforms simultaneously — your Telegram message and a CLI session can share the same agent.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">🧠</div>
+            <div>
+              <strong>Memory — <code>agent/memory_manager.py</code></strong>
+              <p>The long-term memory. Saves important context across sessions — who you are, your preferences, ongoing projects. Written to <code>MEMORY.md</code> and <code>USER.md</code> files in your Hermes home directory.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: #9E5CF7">📜</div>
+            <div>
+              <strong>Skills — <code>skills/</code></strong>
+              <p>The playbook. <span class="term" data-definition="A skill is a Markdown file containing step-by-step instructions for a specific task. When you invoke a skill with /skill-name, its content is loaded into the system prompt, giving Hermes a detailed procedure to follow.">Skills</span> are Markdown files that encode workflows — like saved recipes. Hermes can create new skills from experience and improve existing ones automatically.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: File tree -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where Everything Lives</h2>
+        <p>Each actor has its own home in the codebase. Here is the map:</p>
+
+        <div class="file-tree animate-in">
+          <div class="ft-folder open">
+            <span class="ft-name">hermes-agent/</span>
+            <span class="ft-desc">Root of the project</span>
+            <div class="ft-children">
+              <div class="ft-file">
+                <span class="ft-name">cli.py</span>
+                <span class="ft-desc">Terminal UI — the face users see</span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">run_agent.py</span>
+                <span class="ft-desc">AIAgent engine — the conversation loop and tool execution</span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">hermes_state.py</span>
+                <span class="ft-desc">SQLite session database — stores conversation history with full-text search</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">tools/</span>
+                <span class="ft-desc">40+ callable tools (terminal, web, files, browser, vision...)</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">agent/</span>
+                <span class="ft-desc">AI internals: memory, skills, providers, prompt building</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">gateway/</span>
+                <span class="ft-desc">Messaging platform bridges (Telegram, Discord, Slack...)</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">cron/</span>
+                <span class="ft-desc">Scheduled task engine — run jobs automatically on a timer</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">skills/</span>
+                <span class="ft-desc">Built-in skill library organized by category</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">providers/</span>
+                <span class="ft-desc">LLM provider adapters — the layer that makes model-switching seamless</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🗺️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why This Matters for Steering AI</strong>
+            <p>When you tell an AI coding assistant to "add a new tool," you can now say "add it to <code>tools/</code> and register it in <code>toolsets.py</code>" — precise instructions that skip ambiguity and save back-and-forth.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Group chat animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A Conversation Between Components</h2>
+        <p>
+          When you ask Hermes to "write a Python script and run it," here is how the internal cast communicates. Press <strong>Next Message</strong> to watch it unfold.
+        </p>
+
+        <div class="chat-window" id="chat-cast">
+          <div class="chat-messages">
+            <div class="chat-message" data-sender="cli" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">CLI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">CLI</span>
+                <p>User typed: "write a Python script that lists all .py files and run it"</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>Got it. Sending to the LLM with the full tool list attached...</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="llm" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">LLM</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">LLM</span>
+                <p>I need to: 1) write_file to create the script, 2) terminal to execute it. Requesting both tools.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>Calling write_file first, then terminal. These can run sequentially. Consuming 2 iterations from the budget.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="tools" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">🔧</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Tools</span>
+                <p>write_file done. Script created at /tmp/list_py.py. terminal running... output: 47 .py files found.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="agent" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AIAgent</span>
+                <p>Feeding tool results back to the LLM for the final response...</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="llm" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">LLM</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">LLM</span>
+                <p>Done! I wrote the script and ran it — found 47 .py files. Here is the output...</p>
+              </div>
+            </div>
+            <div class="chat-message" data-sender="cli" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">CLI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">CLI</span>
+                <p>Streaming the final response to the user terminal. Task complete.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" id="chat-cast-typing" style="display:none">
+            <div class="chat-avatar" id="chat-cast-typing-avatar" style="background: var(--color-actor-2)">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: DnD quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Match Each Component to Its Job</h2>
+        <p>Drag each component name to the description of what it does.</p>
+
+        <div class="dnd-container" id="dnd-cast">
+          <div class="dnd-chips">
+            <div class="dnd-chip" draggable="true" data-answer="cli">CLI</div>
+            <div class="dnd-chip" draggable="true" data-answer="aiagent">AIAgent</div>
+            <div class="dnd-chip" draggable="true" data-answer="tools">Tools</div>
+            <div class="dnd-chip" draggable="true" data-answer="gateway">Gateway</div>
+            <div class="dnd-chip" draggable="true" data-answer="skills">Skills</div>
+          </div>
+          <div class="dnd-zones">
+            <div class="dnd-zone" data-correct="cli">
+              <p class="dnd-zone-label">Renders the terminal UI, captures your keystrokes, and streams AI responses to your screen</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="aiagent">
+              <p class="dnd-zone-label">Manages the conversation loop, sends prompts to the LLM, and coordinates tool execution</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="tools">
+              <p class="dnd-zone-label">The actual functions that do real work: read files, run terminal commands, search the web</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="gateway">
+              <p class="dnd-zone-label">Bridges Hermes to messaging platforms like Telegram, Discord, and Slack</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="skills">
+              <p class="dnd-zone-label">Markdown files that encode step-by-step procedures the agent can follow</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: var(--space-4)" onclick="checkDnD('dnd-cast')">Check Matches</button>
+          <button class="btn" style="margin-top: var(--space-4); margin-left: var(--space-3)" onclick="resetDnD('dnd-cast')">Reset</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
